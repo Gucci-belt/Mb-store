@@ -11,7 +11,8 @@ services:
       MARIADB_ROOT_PASSWORD: rootpassword
     volumes:
       - db_data:/var/lib/mysql
-
+    networks:
+      - wordpress_network
   wordpress:
     image: wordpress:latest
     restart: always
@@ -26,6 +27,8 @@ services:
       - db
     volumes:
       - wp_data:/var/www/html
+    networks: 
+      - wordpress_network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
@@ -38,7 +41,11 @@ services:
       PMA_PASSWORD: wordpress
     depends_on:
       - db
-
+    networks: 
+      - wordpress_network
 volumes:
   db_data:
   wp_data: 
+
+networks:
+  wordpress_network:
