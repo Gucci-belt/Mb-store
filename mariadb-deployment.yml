@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mariadb-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi 
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/mariadb" 
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mariadb-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi 
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb-service 
+spec:
+  selector:
+    app: mariadb
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP 
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb
+        image: mariadb:10.11 
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MARIADB_DATABASE
+          value: "wordpress" 
+        - name: MARIADB_USER
+          value: "wordpress" 
+        - name: MARIADB_PASSWORD
+          value: "wordpress" 
+        - name: MARIADB_ROOT_PASSWORD
+          value: "rootpassword" 
+        volumeMounts:
+        - name: mariadb-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mariadb-persistent-storage
+        persistentVolumeClaim:
+          claimName: mariadb-pv-claim
