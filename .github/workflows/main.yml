@@ -1,0 +1,30 @@
+name: CI to Docker Hub
+
+# สั่งให้ทำงานเมื่อมีการ push โค้ดไปที่ branch 'main'
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest # ใช้เครื่อง Ubuntu เพื่อทำงาน
+    steps:
+      
+      # 1. ดึงโค้ดของเราลงมา
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      # 2. ล็อกอินเข้า Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 3. สร้าง (Build) และ ส่ง (Push) อิมเมจ
+      - name: Build and push Docker image
+        uses: docker/build-and-push-action@v5
+        with:
+          context: . # บอกว่า Dockerfile อยู่ที่โฟลเดอร์หลัก
+          push: true # สั่งให้ push หลัง build เสร็จ
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}gbelt/my-n:latest # *** แก้ตรงนี้ ***
