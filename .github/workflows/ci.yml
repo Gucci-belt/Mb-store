@@ -23,7 +23,7 @@ jobs:
 
       # 3. สร้าง (Build) และ ส่ง (Push) อิมเมจ
       - name: Build and push Docker image
-        uses: docker/build-and-push-action@v5
+        uses: docker/build-push-action@v5
         with:
           context: . # บอกว่า Dockerfile อยู่ที่โฟลเดอร์หลัก
           push: true # สั่งให้ push หลัง build เสร็จ
